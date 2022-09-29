@@ -787,14 +787,16 @@ func (ce *Engine) updateValidValue(txn *badger.Txn, rs *RoundStates, p *objs.Pro
 		}
 	}
 	// check if the proposal is valid
-	ok, err := ce.isValid(txn, rs, p.PClaims.BClaims.ChainID, p.PClaims.BClaims.StateRoot, p.PClaims.BClaims.HeaderRoot, txs)
+	//ok, err := ce.isValid(txn, rs, p.PClaims.BClaims.ChainID, p.PClaims.BClaims.StateRoot, p.PClaims.BClaims.HeaderRoot, txs)
+	_, err = ce.isValid(txn, rs, p.PClaims.BClaims.ChainID, p.PClaims.BClaims.StateRoot, p.PClaims.BClaims.HeaderRoot, txs)
 	if err != nil {
 		utils.DebugTrace(ce.logger, err)
 		return err
 	}
-	if !ok { // proposal is invalid
-		return errorz.ErrInvalid{}.New("proposal is invalid in update vv")
-	}
+	// todo: uncomment this
+	// if !ok { // proposal is invalid
+	// 	return errorz.ErrInvalid{}.New("proposal is invalid in update vv")
+	// }
 	// update the valid value
 	if err := ce.setMostRecentValidValue(rs, p); err != nil {
 		utils.DebugTrace(ce.logger, err)

@@ -35,18 +35,26 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 	// if rs.Proposal.PClaims.BClaims.Height+1 != rs.Proposal.PClaims.BClaims.Height {
 	// 	return nil, false
 	// }
+
+	if rs == nil || rs.Proposal == nil {
+		return nil, false
+	}
+
 	logger := logging.GetLogger("accusations")
+	logger.Warnf("hello: %v", len(rs.Proposal.TxHshLst))
 	var err error
 	var accusation *accusations.InvalidUTXOConsumptionAccusationTask
 
 	for _, txHash := range rs.Proposal.TxHshLst {
 		// get Tx by hash from DB
+		logger.Warn("a")
 		err = db.View(func(txn *badger.Txn) error {
+			logger.Warn("b")
 			txBin, err := db.GetTxCacheItem(txn, rs.Proposal.PClaims.BClaims.Height, txHash)
 			if err != nil {
 				return err
 			}
-
+			logger.Warn("c")
 			tx := &aobjs.Tx{}
 			err = tx.UnmarshalBinary(txBin)
 			if err != nil {
@@ -56,18 +64,19 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 			var vins []*aobjs.TXIn = tx.Vin
 
 			for _, vin := range vins {
+				logger.Warn("d")
 				utxoID, err := vin.UTXOID()
 				if err != nil {
 					logger.Warnf("error getting utxoID: %v", err)
 					return err
 				}
-
+				logger.Warn("e")
 				mStateRootProof, err := getStateMerkleProofs(txn, utxoID, logger)
 				if err != nil {
 					logger.Warnf("error getting merkel proof against state root: %v", err)
 					return err
 				}
-
+				logger.Warn("f")
 				// if utxoID is included in state trie then continue bc all is fine
 				// else generate proof of non-inclusion and accuse
 				if !mStateRootProof.Included {
@@ -76,13 +85,24 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 						logger.Warnf("error marshalling PClaims: %v", err)
 						return err
 					}
+					logger.Warn("e")
 					//rs.Proposal.Signature
-					bClaimsBin, err := rs.Proposal.PClaims.BClaims.MarshalBinary()
+					os, err := db.GetOwnState(txn)
+					if err != nil {
+						return err
+					}
+					//db.GetCommittedBlockHeader(txn, os.SyncToBH.BClaims)
+					bClaimsBin, err := os.SyncToBH.BClaims.MarshalBinary()
 					if err != nil {
 						logger.Warnf("error marshalling BClaims: %v", err)
 						return err
 					}
-
+					// bClaimsBin, err := rs.Proposal.PClaims.BClaims.MarshalBinary()
+					// if err != nil {
+					// 	logger.Warnf("error marshalling BClaims: %v", err)
+					// 	return err
+					// }
+					logger.Warn("f")
 					// TXInPreImage
 					txInPreImageBin, err := vin.TXInLinker.TXInPreImage.MarshalBinary()
 					if err != nil {
@@ -98,7 +118,7 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 						logger.Warnf("error marshalling merkel proof against state root: %v", err)
 						return err
 					}
-
+					logger.Warn("g")
 					// proofs[1] = proofInclusionTxRoot - ProofInclusionTxRoot against PClaims.BClaims.TxRoot.
 					mTxRootProof, err := getTxRootMerkleProofs(txn, txHash, db)
 					if err != nil {
@@ -110,7 +130,7 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 						logger.Warnf("error marshalling merkel proof against tx root: %v", err)
 						return err
 					}
-
+					logger.Warn("h")
 					// proofs[2] = proofOfInclusionTxHash - ProofOfInclusionTxHash against the target hash from ProofInclusionTxRoot
 					mTxHashProof, err := getTxHashProof(txn, tx, utxoID)
 					if err != nil {
@@ -128,7 +148,7 @@ func detectInvalidUTXOConsumption(rs *objs.RoundState, lrs *lstate.RoundStates, 
 						pClaimsBin,
 						rs.Proposal.Signature,
 						bClaimsBin,
-						rs.Proposal.PClaims.RCert.SigGroup,
+						os.SyncToBH.SigGroup,
 						txInPreImageBin,
 						proofs,
 					)

@@ -155,7 +155,7 @@ func (m *Manager) Poll() error {
 		return nil
 	case acc := <-m.accusationQ:
 		// an accusation has been formed and it needs to be sent to the smart contracts
-		m.logger.WithField("id", acc.GetId()).Debugf("Got an accusation from a worker: %#v", acc)
+		m.logger.WithField("id", acc.GetId()).Warnf("Got an accusation from a worker: %#v", acc)
 		m.unpersistedCreatedAccusations = append(m.unpersistedCreatedAccusations, acc)
 	default:
 		//m.logger.Debug("AccusationManager did not find an accusation")
@@ -308,6 +308,7 @@ func (m *Manager) processLRS(lrs *lstate.RoundStates) (bool, error) {
 			continue
 		}
 
+		// todo: maybe not the best place to put this
 		if rs.Proposal != nil {
 			rs.Proposal.Proposer = utils.CopySlice(v.VAddr)
 			rs.Proposal.GroupKey = utils.CopySlice(lrs.ValidatorSet.GroupKey)

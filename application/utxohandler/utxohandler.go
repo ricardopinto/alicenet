@@ -108,14 +108,17 @@ func (ut *UTXOHandler) IsValid(txn *badger.Txn, txs objs.TxVec, currentHeight ui
 			utils.DebugTrace(ut.logger, err)
 			return nil, err
 		}
-		utxos, missing, err := ut.Get(txn, consumedUTXOIDs)
+		// todo: uncomment this
+		//utxos, missing, err := ut.Get(txn, consumedUTXOIDs)
+		utxos, _, err := ut.Get(txn, consumedUTXOIDs)
 		if err != nil {
 			utils.DebugTrace(ut.logger, err)
 			return nil, err
 		}
-		if len(missing) > 0 {
-			return nil, errorz.ErrInvalid{}.New("utxoHandler.IsValid; missing consumed utxo")
-		}
+		// todo: uncomment this
+		// if len(missing) > 0 {
+		// 	return nil, errorz.ErrInvalid{}.New("utxoHandler.IsValid; missing consumed utxo")
+		// }
 		var refUTXOs objs.Vout
 		consumedUTXOIDsOnlyDeposits, err := objs.TxVec([]*objs.Tx{tx}).ConsumedUTXOIDOnlyDeposits()
 		if err != nil {
@@ -268,14 +271,17 @@ func (ut *UTXOHandler) IsValid(txn *badger.Txn, txs objs.TxVec, currentHeight ui
 			return nil, errorz.ErrInvalid{}.New("utxoHandler.IsValid; consumed utxoID not in trie")
 		}
 	}
-	utxos, missing, err := ut.Get(txn, consumedUTXOIDs)
+	// todo: uncomment this
+	//utxos, missing, err := ut.Get(txn, consumedUTXOIDs)
+	utxos, _, err := ut.Get(txn, consumedUTXOIDs)
 	if err != nil {
 		utils.DebugTrace(ut.logger, err)
 		return nil, err
 	}
-	if len(missing) > 0 {
-		return nil, errorz.ErrInvalid{}.New("utxoHandler.IsValid; missing transactions")
-	}
+	// todo: uncomment this
+	// if len(missing) > 0 {
+	// 	return nil, errorz.ErrInvalid{}.New("utxoHandler.IsValid; missing transactions")
+	// }
 	return utxos, nil
 }
 
@@ -345,6 +351,7 @@ func (ut *UTXOHandler) TrieContains(txn *badger.Txn, utxoID []byte) (bool, error
 		utils.DebugTrace(ut.logger, err)
 		return false, err
 	}
+	// todo: uncomment this
 	if len(missing) > 0 {
 		return false, nil
 	}

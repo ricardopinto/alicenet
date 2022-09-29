@@ -22,6 +22,7 @@ func (ce *Engine) castNewProposalValue(txn *badger.Txn, rs *RoundStates) error {
 		utils.DebugTrace(ce.logger, err)
 		return err
 	}
+	ce.logger.Warnf("txList: %v | %v", len(txList), txList)
 	if stateRoot == nil {
 		stateRoot = make([]byte, constants.HashLen)
 	}
@@ -48,7 +49,7 @@ func (ce *Engine) castNewProposalValue(txn *badger.Txn, rs *RoundStates) error {
 		},
 		TxHshLst: txList,
 	}
-	ce.logger.Tracef(`
+	ce.logger.Debugf(`
     Proposal{
       PClaims{
         BClaims{

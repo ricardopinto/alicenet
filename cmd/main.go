@@ -2,12 +2,13 @@ package main
 
 import (
 	"bytes"
-	"github.com/alicenet/alicenet/cmd/ethkey"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/alicenet/alicenet/cmd/ethkey"
 
 	"github.com/alicenet/alicenet/cmd/bootnode"
 	"github.com/alicenet/alicenet/cmd/firewalld"
@@ -24,7 +25,7 @@ import (
 // Variables set by goreleaser process: https://goreleaser.com/cookbooks/using-main.version.
 var (
 	// Version from git tag.
-	version               = "dev"
+	version               = "v0.0.0"
 	defaultConfigLocation = "/alicenet/mainnet/config.toml"
 )
 

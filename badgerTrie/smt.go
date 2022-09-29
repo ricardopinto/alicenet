@@ -106,13 +106,14 @@ func (s *SMT) Update(txn *badger.Txn, keys, values [][]byte) ([]byte, error) {
 	}
 	for i := 0; i < len(keys); i++ {
 		if bytes.Equal(values[i], DefaultLeaf) {
-			v, err := s.get(txn, s.Root, keys[i], nil, 0, s.TrieHeight)
-			if err != nil {
-				return nil, err
-			}
-			if v == nil {
-				return nil, errors.New("missing")
-			}
+			// todo: uncomment this code
+			// v, err := s.get(txn, s.Root, keys[i], nil, 0, s.TrieHeight)
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// if v == nil {
+			// 	return nil, errors.New("missing")
+			// }
 		} else {
 			v, err := s.get(txn, s.Root, keys[i], nil, 0, s.TrieHeight)
 			if err != nil {

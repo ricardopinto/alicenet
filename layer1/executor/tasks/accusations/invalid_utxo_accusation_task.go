@@ -87,6 +87,7 @@ func (t *InvalidUTXOConsumptionAccusationTask) Execute(ctx context.Context) (*ty
 		t.Proofs,
 	)
 	if err != nil {
+		t.GetLogger().Errorf("InvalidUTXOConsumptionAccusationTask: error calling smart contract to accuse of invalid UTXO consumption, id: %s: %v", t.GetId(), err)
 		return nil, tasks.NewTaskErr(fmt.Sprintf("InvalidUTXOConsumptionAccusationTask: failed to accuse: %v", err), true)
 	}
 	return txn, nil

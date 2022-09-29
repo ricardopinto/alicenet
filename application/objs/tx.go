@@ -523,7 +523,9 @@ func (b *Tx) ValidateEqualVinVout(currentHeight uint32, refUTXOs Vout) error {
 	if err != nil {
 		return err
 	}
-	if valueOutPlusFee.Cmp(valueIn) == 0 {
+	//todo: delete this
+	if valueOutPlusFee.Cmp(valueIn) == 0 || valueIn.IsZero() {
+		// if valueOutPlusFee.Cmp(valueIn) == 0 {
 		return nil
 	}
 	return errorz.ErrInvalid{}.New(fmt.Sprintf("tx.validateEqualVinVout: input value does not match output value: IN:%v  vs  OUT+FEE:%v", valueIn, valueOutPlusFee))
